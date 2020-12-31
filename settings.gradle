@@ -7,5 +7,5 @@
  * in the user manual at https://docs.gradle.org/6.7.1/userguide/multi_project_builds.html
  */
 
-rootProject.name = 'InfRetr-Lang-Project'
+rootProject.name = 'rank-PS4-games-by-opinions'
 include('app')
