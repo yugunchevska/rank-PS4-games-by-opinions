@@ -16,7 +16,7 @@ public class PushSquareReviewCrawler {
 		driver.get(reviewUrl);
 	}
 
-	public String getGameName() {	
+	public String getReviewTitle() {	
 		// find h1 with class "title"
 		WebElement titleSection = driver.findElement(By.xpath("//*[@id=\"article\"]/header/section[1]/h1"));
 		

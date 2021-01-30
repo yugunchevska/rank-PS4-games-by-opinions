@@ -61,7 +61,7 @@ public class PushSquareCrawler {
 		for (String url : urls) {
 			PushSquareReviewCrawler reviewCrawler = new PushSquareReviewCrawler(driver, url);
 			// TODO store grame's info in DB
-			System.out.println(reviewCrawler.getGameName());
+			System.out.println(reviewCrawler.getReviewTitle());
 //			System.out.println(reviewCrawler.getReviewInfo());
 //			System.out.println(reviewCrawler.getComments());
 		}
