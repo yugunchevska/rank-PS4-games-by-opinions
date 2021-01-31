@@ -1,11 +1,14 @@
 package bg.sofia.uni.fmi.learn.ii.crawler;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+
+import bg.sofia.uni.fmi.learn.ee.summary.TextSummarization;
 
 public class PushSquareReviewCrawler {
 	
@@ -28,6 +31,12 @@ public class PushSquareReviewCrawler {
 		WebElement reviewSections = driver.findElement(By.xpath("//*[@id=\"article\"]/div/section[1]"));
 
 		return reviewSections.getText();
+	}
+	
+	public String getSummaryInfo() throws IOException {
+		String review = getReviewInfo();
+		
+		return TextSummarization.summarize(review);
 	}
 	
 	public List<String> getComments() {

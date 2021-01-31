@@ -1,5 +1,6 @@
 package bg.sofia.uni.fmi.learn.ii.crawler;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +9,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import bg.sofia.uni.fmi.learn.ee.summary.TextSummarization;
 
 public class KotakuReviewCrawler {
 	private WebDriver driver;
@@ -82,6 +85,12 @@ public class KotakuReviewCrawler {
 		}
 		
 		return review.toString();
+	}
+	
+	public String getSummaryInfo() throws IOException {
+		String review = getReviewInfo();
+		
+		return TextSummarization.summarize(review);
 	}
 	
 	public List<String> getComments() throws InterruptedException {

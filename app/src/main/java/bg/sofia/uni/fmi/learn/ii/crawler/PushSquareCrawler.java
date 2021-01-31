@@ -1,5 +1,6 @@
 package bg.sofia.uni.fmi.learn.ii.crawler;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,13 +56,14 @@ public class PushSquareCrawler {
 	    return reviewLinks;
 	}
 	
-	public void storeReviewsInDB() {
+	public void storeReviewsInDB() throws IOException {
 		List<String> urls = getLinksToLatestReviews();
 		
 		for (String url : urls) {
 			PushSquareReviewCrawler reviewCrawler = new PushSquareReviewCrawler(driver, url);
 			// TODO store grame's info in DB
 			System.out.println(reviewCrawler.getReviewTitle());
+			System.out.println(reviewCrawler.getSummaryInfo());
 //			System.out.println(reviewCrawler.getReviewInfo());
 //			System.out.println(reviewCrawler.getComments());
 		}
@@ -71,7 +73,7 @@ public class PushSquareCrawler {
 		driver.quit();
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		PushSquareCrawler crawler  = new PushSquareCrawler();
 		crawler.storeReviewsInDB();
 		crawler.closeDriver();

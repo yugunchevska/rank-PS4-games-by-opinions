@@ -1,5 +1,6 @@
 package bg.sofia.uni.fmi.learn.ii.crawler;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,15 +75,16 @@ public class KotakuCrawler {
 	}
 	
 	// TODO store grame's info in DB
-	public void storeReviewsInDB() throws InterruptedException {
+	public void storeReviewsInDB() throws InterruptedException, IOException {
 		List<String> urls = getLinksToLatestReviews();
 		
 		for (String url : urls) {
 			KotakuReviewCrawler reviewCrawler = new KotakuReviewCrawler(driver, url);
 			
 			System.out.println(reviewCrawler.getReviewTitle());
+			System.out.println(reviewCrawler.getSummaryInfo());
 			//System.out.println(reviewCrawler.getReviewInfo());
-			System.out.println(reviewCrawler.getComments());
+			//System.out.println(reviewCrawler.getComments());
 		}
 	}
 	
@@ -90,7 +92,7 @@ public class KotakuCrawler {
 		driver.quit();
 	}
 
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) throws InterruptedException, IOException {
 		KotakuCrawler crawler  = new KotakuCrawler();
 		crawler.storeReviewsInDB();	
 		crawler.closeDriver();
