@@ -30,7 +30,10 @@ dependencies {
 	// for summarization
 	implementation 'org.apache.httpcomponents:httpclient:4.5.13'
 	implementation 'com.google.code.gson:gson:2.8.6'
-    
+
+    // for sentiment analysis
+    implementation 'edu.stanford.nlp:stanford-corenlp:4.2.0'
+    implementation 'edu.stanford.nlp:stanford-corenlp:4.2.0:models'
 }
 
 application {
