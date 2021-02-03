@@ -1,4 +1,4 @@
-package bg.sofia.uni.fmi.learn.ee.summary;
+package bg.sofia.uni.fmi.learn.nlp.summary;
 
 public class SummaryResult {
 	

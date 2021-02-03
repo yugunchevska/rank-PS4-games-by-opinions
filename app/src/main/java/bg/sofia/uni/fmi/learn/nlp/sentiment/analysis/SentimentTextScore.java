@@ -1,4 +1,4 @@
-package bg.sofia.uni.fmi.learn.ee.sentiment.analysis;
+package bg.sofia.uni.fmi.learn.nlp.sentiment.analysis;
 
 public class SentimentTextScore {
 	

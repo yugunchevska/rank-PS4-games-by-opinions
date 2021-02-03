@@ -1,4 +1,4 @@
-package bg.sofia.uni.fmi.learn.ee.summary;
+package bg.sofia.uni.fmi.learn.nlp.summary;
 
 import java.io.IOException;
 import java.util.ArrayList;

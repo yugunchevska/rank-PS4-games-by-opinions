@@ -1,4 +1,4 @@
-package bg.sofia.uni.fmi.learn.ee.sentiment.analysis;
+package bg.sofia.uni.fmi.learn.nlp.sentiment.analysis;
 
 import java.io.InvalidObjectException;
 import java.util.ArrayList;

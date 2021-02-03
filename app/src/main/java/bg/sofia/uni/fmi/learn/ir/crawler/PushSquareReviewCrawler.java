@@ -1,4 +1,4 @@
-package bg.sofia.uni.fmi.learn.ii.crawler;
+package bg.sofia.uni.fmi.learn.ir.crawler;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,7 +8,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import bg.sofia.uni.fmi.learn.ee.summary.TextSummarization;
+import bg.sofia.uni.fmi.learn.nlp.summary.TextSummarization;
 
 public class PushSquareReviewCrawler {
 	
