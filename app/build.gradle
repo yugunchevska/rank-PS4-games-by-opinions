@@ -34,6 +34,15 @@ dependencies {
     // for sentiment analysis
     implementation 'edu.stanford.nlp:stanford-corenlp:4.2.0'
     implementation 'edu.stanford.nlp:stanford-corenlp:4.2.0:models'
+    
+    // for DB
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.4.2'
+	implementation 'com.microsoft.sqlserver:mssql-jdbc:9.2.0.jre8'
+	
+	// for searching
+	implementation 'org.apache.lucene:lucene-core:8.8.0'
+	implementation 'org.apache.lucene:lucene-queryparser:8.8.0'
+	implementation 'org.apache.lucene:lucene-analyzers-common:8.8.0'
 }
 
 application {
