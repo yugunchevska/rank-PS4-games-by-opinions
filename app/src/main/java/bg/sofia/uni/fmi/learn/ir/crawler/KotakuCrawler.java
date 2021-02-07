@@ -1,6 +1,9 @@
 package bg.sofia.uni.fmi.learn.ir.crawler;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -122,8 +125,10 @@ public class KotakuCrawler {
 		}
 	}
 
-	public static void main(String[] args) throws InterruptedException, IOException {
-		System.setProperty("webdriver.chrome.driver", "D:\\java-projects\\InfRetr\\chromedriver.exe");
+	public static void main(String[] args) throws InterruptedException, IOException, URISyntaxException {
+		URL pathToChromeDriver = PushSquareCrawler.class.getClassLoader().getResource("chromedriver.exe");
+		File chromeDriver = new File(pathToChromeDriver.toURI());
+		System.setProperty("webdriver.chrome.driver", chromeDriver.getAbsolutePath());
 		WebDriver driver = new ChromeDriver();
 		
 		KotakuCrawler crawler  = new KotakuCrawler(driver);

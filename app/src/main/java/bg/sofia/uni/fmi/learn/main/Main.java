@@ -1,6 +1,9 @@
 package bg.sofia.uni.fmi.learn.main;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -22,7 +25,7 @@ import bg.sofia.uni.fmi.learn.sql.MySqlConnection;
 
 public class Main {
 	
-	public static void main(String[] args) throws IOException, InterruptedException, ParseException {
+	public static void main(String[] args) throws IOException, InterruptedException, ParseException, URISyntaxException {
 		Scanner scanner = new Scanner(System.in);
 		try {
 			// 0. ask for which dates to see the rank
@@ -40,7 +43,9 @@ public class Main {
 			// 1. store info from sites in DB
 			// 1.1 should use only one driver, we want it faster
 			// 1.2 should crawl from some date 
-			System.setProperty("webdriver.chrome.driver", "D:\\java-projects\\InfRetr\\chromedriver.exe");
+			URL pathToChromeDriver = PushSquareCrawler.class.getClassLoader().getResource("chromedriver.exe");
+			File chromeDriver = new File(pathToChromeDriver.toURI());
+			System.setProperty("webdriver.chrome.driver", chromeDriver.getAbsolutePath());
 			WebDriver driver = new ChromeDriver();
 			
 			PushSquareCrawler pushSquareCrawler = new PushSquareCrawler(driver);
