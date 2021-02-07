@@ -16,7 +16,7 @@ import bg.sofia.uni.fmi.learn.pojo.Review;
 import bg.sofia.uni.fmi.learn.sql.MySqlConnection;
 
 public class KotakuCrawler {
-	private static final String KOTAKU_URL = "https://kotaku.com/c/review";
+	private static final String KOTAKU_URL = "https://kotaku.com/c/review/video-games";
 	
 	private WebDriver driver;
 	
@@ -47,16 +47,18 @@ public class KotakuCrawler {
 		// get the last review stored in db
 		MySqlConnection dbConn = new MySqlConnection("kotaku");
 		String latestUrlInDB = dbConn.getLatestUrl();
+		System.out.println("in db " + latestUrlInDB);
 				
-		// get list of all reviews
-		// TODO: the xpath is changing -> use div class = "sc-17uq8ex-0 joJOaV" instead
-	    WebElement reviewList = driver.findElement(By.xpath("/html/body/div[3]/div[4]/main/div/div[4]"));
-
+		// get list of all reviews	
+	    WebElement reviewList = driver.findElement(By.className("joJOaV"));
+	    System.out.println("here1");
 	    // Go through each review article 
 	    List<WebElement> articles = reviewList.findElements(By.tagName("article"));
+	    System.out.println("size of articles: " + articles.size());
 	    List<Review> reviews = new ArrayList<>();
 	    for(WebElement article : articles) {
 	    	try {
+	    		System.out.println("here1");
 	    		WebElement heading = article.findElement(By.tagName("h2"));	
 	    	
 	    		List<WebElement> attributes = article.findElements(By.tagName("a"));
@@ -102,19 +104,21 @@ public class KotakuCrawler {
 		return fromRealDate.compareTo(reviewRealDate) < 0;
 	}
 	
-	// TODO store grame's info in DB
 	public void storeReviewsInDB(String fromDate) throws InterruptedException, IOException {
 		List<Review> reviews = getLinksOfLatestReviews(fromDate);
 		
 		for (Review review : reviews) {
 			KotakuReviewCrawler reviewCrawler = new KotakuReviewCrawler(driver, review.getUrl());
 			
-			MySqlConnection dbConn = new MySqlConnection("kotaku");
-			dbConn.insertGame(review.getName(), 
+			// check if this game is for ps4
+			if (reviewCrawler.isSuitableForPS4()) {
+				MySqlConnection dbConn = new MySqlConnection("kotaku");
+				dbConn.insertGame(reviewCrawler.getGameTitle(), 
 							  review.getDate(), 
 							  review.getUrl(), 
 							  reviewCrawler.getSummaryInfo(), 
 							  reviewCrawler.getComments());
+			}
 		}
 	}
 
@@ -123,7 +127,7 @@ public class KotakuCrawler {
 		WebDriver driver = new ChromeDriver();
 		
 		KotakuCrawler crawler  = new KotakuCrawler(driver);
-		crawler.storeReviewsInDB("2021-01-06");	
+		crawler.storeReviewsInDB("2020-12-14");	
 		driver.quit();
 	}
 }

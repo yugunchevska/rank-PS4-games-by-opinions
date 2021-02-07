@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -20,11 +21,14 @@ public class KotakuReviewCrawler {
 		driver.get(reviewUrl);
 	}
 
-	public String getReviewTitle() {	
+	public String getGameTitle() {	
 		// find tagger header 
 		WebElement header = driver.findElement(By.tagName("header"));
 		WebElement h1Header = header.findElement(By.tagName("h1"));
-		return h1Header.getText();
+		String reviewTitle = h1Header.getText();
+		int lastIndexOfColon = reviewTitle.lastIndexOf(":");
+		
+		return reviewTitle.substring(0, lastIndexOfColon);
 	}
 	
 	public String getReviewInfo() {
@@ -33,15 +37,16 @@ public class KotakuReviewCrawler {
 		StringBuilder review = new StringBuilder();
 		for (WebElement div : divs) {
 			try {
-			String divClass = div.getAttribute("class");
+				String divClass = div.getAttribute("class");
 				if (divClass.contains("js") && divClass.contains("post") && divClass.contains("content")) {
 					List<WebElement> paragraphs = div.findElements(By.tagName("p"));
 					for (WebElement paragraph : paragraphs) {
 						review.append(paragraph.getText()).append("\n");
 					}
 				}
-			} catch (NullPointerException e) {
+			} catch (NullPointerException | StaleElementReferenceException e) {
 				System.out.println("The div in Kotaku review doesn't has class.");
+				continue;
 			}
 		}
 		
@@ -147,5 +152,25 @@ public class KotakuReviewCrawler {
 		driver.switchTo().defaultContent();
 		
 		return comments;
+	}
+	
+	public boolean isSuitableForPS4() {
+		WebElement gameCardElement = driver.findElement(By.className("aebpua-5"));
+		List<WebElement> divsInGameCard = gameCardElement.findElements(By.tagName("div"));
+		
+		for(WebElement div : divsInGameCard) {
+			try {
+				String text = div.getText().toLowerCase();
+				if (text.contains("ps4") || text.contains("ps 4") || text.contains("playstation 4")) {
+					return true;
+				}
+			} catch (NullPointerException e) {
+				// TODO: this should be a log
+				//System.out.println("Some divs doesnt have classes");
+				continue;
+			}
+		}
+		
+		return false;
 	}
 }

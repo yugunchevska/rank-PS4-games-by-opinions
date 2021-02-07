@@ -19,11 +19,24 @@ public class PushSquareReviewCrawler {
 		driver.get(reviewUrl);
 	}
 
-	public String getReviewTitle() {	
+	public String getGameTitle() {	
 		// find h1 with class "title"
 		WebElement titleSection = driver.findElement(By.xpath("//*[@id=\"article\"]/header/section[1]/h1"));
 		
-		return titleSection.getText();
+		String reviewTitle = titleSection.getText();
+		if (reviewTitle.contains("Mini Review:")) {
+			// it's of type 'Mini Review: <title> (PS4) -'
+			int firstIndexOfColon = reviewTitle.indexOf(": ");
+			int endTitleIndex = reviewTitle.indexOf("(PS4)");
+			if (endTitleIndex < 0) {
+				endTitleIndex = reviewTitle.indexOf("-");
+			}
+			return reviewTitle.substring(firstIndexOfColon + 2, endTitleIndex);
+		} else {
+			// it's of type '<title> Review'
+			int lastIndexOfReview = reviewTitle.lastIndexOf("Review");
+			return reviewTitle.substring(0, lastIndexOfReview);
+		}
 	}
 	
 	public String getReviewInfo() {

@@ -92,7 +92,7 @@ public class PushSquareCrawler {
 			PushSquareReviewCrawler reviewCrawler = new PushSquareReviewCrawler(driver, review.getUrl());
 			
 			MySqlConnection dbConn = new MySqlConnection("pushsquare");
-			dbConn.insertGame(review.getName(), 
+			dbConn.insertGame(reviewCrawler.getGameTitle(), 
 							  review.getDate(), 
 							  review.getUrl(), 
 							  reviewCrawler.getSummaryInfo(), 
