@@ -1,6 +1,7 @@
 package bg.sofia.uni.fmi.learn.ir.crawler;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,15 +12,16 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import bg.sofia.uni.fmi.learn.pojo.Review;
+import bg.sofia.uni.fmi.learn.sql.MySqlConnection;
+
 public class KotakuCrawler {
 	private static final String KOTAKU_URL = "https://kotaku.com/c/review";
 	
 	private WebDriver driver;
 	
-	public KotakuCrawler() {
-		System.setProperty("webdriver.chrome.driver", "D:\\java-projects\\InfRetr\\chromedriver.exe");
-		
-	    driver = new ChromeDriver();
+	public KotakuCrawler(WebDriver driver) {
+		this.driver = driver;
 	    driver.manage().window().maximize();
 	    driver.get(KOTAKU_URL);
 	    
@@ -40,15 +42,19 @@ public class KotakuCrawler {
 		driver.switchTo().defaultContent();
 	}
 	
-	// TODO add arg date - from which date to take reviews
 	// TODO should go to the next page automatically - another method maybe; stops when the date is met
-	public List<String> getLinksToLatestReviews() {	    
-	    // get list of all reviews
-	    WebElement reviewList = driver.findElement(By.xpath("/html/body/div[3]/div[5]/main/div/div[4]"));
+	private List<Review> getLinksOfLatestReviews(String fromDate) {	    
+		// get the last review stored in db
+		MySqlConnection dbConn = new MySqlConnection("kotaku");
+		String latestUrlInDB = dbConn.getLatestUrl();
+				
+		// get list of all reviews
+		// TODO: the xpath is changing -> use div class = "sc-17uq8ex-0 joJOaV" instead
+	    WebElement reviewList = driver.findElement(By.xpath("/html/body/div[3]/div[4]/main/div/div[4]"));
 
 	    // Go through each review article 
 	    List<WebElement> articles = reviewList.findElements(By.tagName("article"));
-	    List<String> reviewLinks = new ArrayList<String>();
+	    List<Review> reviews = new ArrayList<>();
 	    for(WebElement article : articles) {
 	    	try {
 	    		WebElement heading = article.findElement(By.tagName("h2"));	
@@ -57,13 +63,28 @@ public class KotakuCrawler {
 		        WebElement headingRef = attributes.get(3);
 		        	
 		        WebElement date = article.findElement(By.tagName("time"));
+		        String reviewDateAndHours = date.getAttribute("datetime");
+		        String reviewDate = reviewDateAndHours.split("T")[0];
+		        if (!isReviewDateAfterWantedDate(reviewDate, fromDate)) {
+	        		// the review is older
+	        		break;
+	        	}
+	        	
+	        	// if the review from pushSquare is already in DB 
+                // => no need to store the rest of them again
+	        	String reviewLink = headingRef.getAttribute("href");
+    			if (latestUrlInDB.equals(reviewLink)) {
+    				break;
+    			}
 		        	
+    			// this should be a log 
 	            System.out.println("Heading    : " + heading.getText());
 	            System.out.println("Date       : " + date.getAttribute("datetime"));
 	            System.out.println("Link       : " + headingRef.getAttribute("href"));
 	            System.out.println("------------------------------");
 	                
-	            reviewLinks.add(headingRef.getAttribute("href"));
+	            Review review = new Review(heading.getText(), reviewDate, reviewLink);
+	            reviews.add(review);
 	    	} catch (NullPointerException e) {
 	    		System.err.println("Error while searching for reviews from Kotaku.");
 	    		e.printStackTrace();
@@ -71,30 +92,38 @@ public class KotakuCrawler {
 	    	}
 	    }
 	    
-	    return reviewLinks;
+	    return reviews;
+	}
+	
+	private boolean isReviewDateAfterWantedDate(String reviewDate, String fromDate) {
+		LocalDate reviewRealDate = LocalDate.parse(reviewDate);
+		LocalDate fromRealDate = LocalDate.parse(fromDate);
+	
+		return fromRealDate.compareTo(reviewRealDate) < 0;
 	}
 	
 	// TODO store grame's info in DB
-	public void storeReviewsInDB() throws InterruptedException, IOException {
-		List<String> urls = getLinksToLatestReviews();
+	public void storeReviewsInDB(String fromDate) throws InterruptedException, IOException {
+		List<Review> reviews = getLinksOfLatestReviews(fromDate);
 		
-		for (String url : urls) {
-			KotakuReviewCrawler reviewCrawler = new KotakuReviewCrawler(driver, url);
+		for (Review review : reviews) {
+			KotakuReviewCrawler reviewCrawler = new KotakuReviewCrawler(driver, review.getUrl());
 			
-			System.out.println(reviewCrawler.getReviewTitle());
-			System.out.println(reviewCrawler.getSummaryInfo());
-			//System.out.println(reviewCrawler.getReviewInfo());
-			//System.out.println(reviewCrawler.getComments());
+			MySqlConnection dbConn = new MySqlConnection("kotaku");
+			dbConn.insertGame(review.getName(), 
+							  review.getDate(), 
+							  review.getUrl(), 
+							  reviewCrawler.getSummaryInfo(), 
+							  reviewCrawler.getComments());
 		}
-	}
-	
-	public void closeDriver() {
-		driver.quit();
 	}
 
 	public static void main(String[] args) throws InterruptedException, IOException {
-		KotakuCrawler crawler  = new KotakuCrawler();
-		crawler.storeReviewsInDB();	
-		crawler.closeDriver();
+		System.setProperty("webdriver.chrome.driver", "D:\\java-projects\\InfRetr\\chromedriver.exe");
+		WebDriver driver = new ChromeDriver();
+		
+		KotakuCrawler crawler  = new KotakuCrawler(driver);
+		crawler.storeReviewsInDB("2021-01-06");	
+		driver.quit();
 	}
 }

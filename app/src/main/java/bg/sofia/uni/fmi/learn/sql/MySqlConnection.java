@@ -18,11 +18,11 @@ public class MySqlConnection {
 		this.site = site;
 	}
 	
-	public void insertGame(String title, String summary, List<String> comments) {
+	public void insertGame(String title, String date, String reviewUrl, String summary, List<String> comments) {
         try (Connection con = DriverManager.getConnection(url, user, password)) {
         	if (!MySqlStatements.doesGameExists(con, site, title)) {
-        		MySqlStatements.insertGameSummary(con, site, title, summary);
-        		MySqlStatements.insertGameComments(con, title, comments);
+        		MySqlStatements.insertGameInfo(con, site, title, date, reviewUrl, summary);
+        		MySqlStatements.insertGameComments(con, site, title, comments);
         	} else {
         		System.out.println("The game already exists in the DB");
         	}
@@ -30,6 +30,18 @@ public class MySqlConnection {
             System.err.println("ERROR with MySQL");
             ex.printStackTrace();
         } 
+	}
+	
+	public String getLatestUrl() {
+		String reviewUrl = "";
+		try (Connection con = DriverManager.getConnection(url, user, password)) {
+			reviewUrl = MySqlStatements.getLatestUrl(con, site);
+        } catch (SQLException ex) {
+            System.err.println("ERROR with MySQL");
+            ex.printStackTrace();
+        } 
+		
+		return reviewUrl;
 	}
 	
 	public String getSummary(String title) {

@@ -28,6 +28,24 @@ public class MySqlStatements {
 		return false;
 	}
 	
+	public static String getLatestUrl(Connection con, String site) {
+		String query = "SELECT url FROM games" + site +" ORDER BY date DESC";
+
+        try (PreparedStatement pst = con.prepareStatement(query);
+                ResultSet rs = pst.executeQuery()) {
+
+        	if(rs.next()){
+        		return rs.getString(1);
+        	}
+            
+        } catch (SQLException ex) {
+        	System.err.println("ERROR with MySQL");
+            ex.printStackTrace();
+        }
+        
+        return "";
+	}
+	
 	public static String getSummary(Connection con, String site, String title) {
 		String query = "SELECT summary FROM games" + site +" WHERE title = '" + title +"'";
 
@@ -65,13 +83,15 @@ public class MySqlStatements {
         return comments;
 	}
 	
-	public static void insertGameSummary(Connection con, String site, String title, String summary) {
-		String insertGameSummary = "INSERT INTO games" + site +"(title, summary) VALUES(?, ?)";
+	public static void insertGameInfo(Connection con, String site, String title, String date, String reviewUrl, String summary) {
+		String insertGameSummary = "INSERT INTO games" + site +"(title, date, url, summary) VALUES(?, ?, ?, ?)";
         
 		try (PreparedStatement pst = con.prepareStatement(insertGameSummary)) {
 			
 			pst.setString(1, title);
-			pst.setString(2, summary);
+			pst.setString(2, date);
+			pst.setString(3, reviewUrl);
+			pst.setString(4, summary);
 			pst.executeUpdate();
             
             System.out.println("A new game has been inserted");
@@ -82,14 +102,14 @@ public class MySqlStatements {
 		}
 	}
 	
-	public static void insertGameComments(Connection con, String title, List<String> comments) {
+	public static void insertGameComments(Connection con, String site, String title, List<String> comments) {
 		for (String comment : comments) {
-			insertGameComment(con, title, comment);
+			insertGameComment(con, site, title, comment);
 		}
 	}
 	
-	private static void insertGameComment(Connection con, String title, String comment) {
-        String insertGameComments = "INSERT INTO gamecomment(game, comment) VALUES(?, ?)";
+	private static void insertGameComment(Connection con, String site, String title, String comment) {
+        String insertGameComments = "INSERT INTO gamecomment" + site +"(game, comment) VALUES(?, ?)";
         
 		try (PreparedStatement pst = con.prepareStatement(insertGameComments)) {
 			
@@ -104,5 +124,4 @@ public class MySqlStatements {
             e.printStackTrace();
 		}
 	}
-
 }
