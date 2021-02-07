@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MySqlStatements {
 	
@@ -64,6 +66,25 @@ public class MySqlStatements {
         return "";
 	}
 	
+	public static Map<String, String> getAllTitlesAndSummaries(Connection con, String site) {
+		String query = "SELECT title, summary FROM games" + site;
+
+		Map<String, String> gameSummary = new HashMap<>();
+        try (PreparedStatement pst = con.prepareStatement(query);
+                ResultSet rs = pst.executeQuery()) {
+
+        	while (rs.next()) {
+        		gameSummary.put(rs.getString(1), rs.getString(2));
+        	}
+            
+        } catch (SQLException ex) {
+        	System.err.println("ERROR with MySQL");
+            ex.printStackTrace();
+        }
+        
+        return gameSummary;
+	}
+	
 	public static List<String> getComments(Connection con, String title) {
 		String query = "SELECT comment FROM gamecomment WHERE game = '" + title +"'";
 
@@ -81,6 +102,37 @@ public class MySqlStatements {
         }
         
         return comments;
+	}
+	
+	public static Map<String, List<String>> getCommentsSince(Connection con, String site, String date) {
+		String query = "SELECT game, comment FROM gamecomment" + site + 
+					   " JOIN games" + site + " ON game = title " + 
+					   "WHERE date > \"" + date +"\"";
+
+		Map<String, List<String>> gameComments = new HashMap<>();
+        try (PreparedStatement pst = con.prepareStatement(query);
+                ResultSet rs = pst.executeQuery()) {
+
+            while (rs.next()) {
+            	String title = rs.getString(1);
+            	if (gameComments.containsKey(title)) {
+            		List<String> comments = gameComments.get(title);
+            		comments.add(rs.getString(2));
+            		gameComments.put(title, comments);
+            		
+            	} else {
+            		List<String> comment = new ArrayList<>();
+            		comment.add(rs.getString(2));
+            		gameComments.put(title, comment);
+            	}
+            }
+            
+        } catch (SQLException ex) {
+        	System.err.println("ERROR with MySQL");
+            ex.printStackTrace();
+        }
+        
+        return gameComments;
 	}
 	
 	public static void insertGameInfo(Connection con, String site, String title, String date, String reviewUrl, String summary) {

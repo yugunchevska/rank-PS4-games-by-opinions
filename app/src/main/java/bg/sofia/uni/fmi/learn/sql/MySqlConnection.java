@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MySqlConnection {
 	
@@ -56,6 +58,18 @@ public class MySqlConnection {
 		return summary;
 	}
 	
+	public Map<String, String> getAllTitlesAndSummaries() {
+		Map<String, String> gameSummary = new HashMap<>();
+		try (Connection con = DriverManager.getConnection(url, user, password)) {
+			gameSummary = MySqlStatements.getAllTitlesAndSummaries(con, site);
+        } catch (SQLException ex) {
+            System.err.println("ERROR with MySQL");
+            ex.printStackTrace();
+        } 
+		
+		return gameSummary;
+	}
+	
 	public List<String> getComments(String title) {
 		List<String> comments = new ArrayList<>();
         try (Connection con = DriverManager.getConnection(url, user, password)) {
@@ -66,6 +80,18 @@ public class MySqlConnection {
         }
         
         return comments;
+	}
+	
+	public Map<String, List<String>> getCommentsSince(String date) {
+		Map<String, List<String>> gameSummary = new HashMap<>();
+		try (Connection con = DriverManager.getConnection(url, user, password)) {
+			gameSummary = MySqlStatements.getCommentsSince(con, site, date);
+        } catch (SQLException ex) {
+            System.err.println("ERROR with MySQL");
+            ex.printStackTrace();
+        } 
+		
+		return gameSummary;
 	}
 
     public static void main(String[] args) {
