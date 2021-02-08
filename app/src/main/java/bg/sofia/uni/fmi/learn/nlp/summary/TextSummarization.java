@@ -22,6 +22,7 @@ public class TextSummarization {
         urlParameters.add(new BasicNameValuePair("sentences", "10"));
         
     	String summaryResponseInJson = HttpRequest.sendPostRequest(SUMMARIZATION_URL, urlParameters);
+    	System.out.println("Json response from MeaningCloud: " + summaryResponseInJson);
     	
     	return extractSummaryFromJson(summaryResponseInJson);
     }

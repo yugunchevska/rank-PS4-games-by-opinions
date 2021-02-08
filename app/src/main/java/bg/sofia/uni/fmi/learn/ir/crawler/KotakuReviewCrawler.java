@@ -89,7 +89,7 @@ public class KotakuReviewCrawler {
 			}
 		}
 		
-		return review.toString();
+		return review.toString().replaceAll("\u2019", "&#39;");
 	}
 	
 	public String getSummaryInfo() throws IOException {
@@ -139,7 +139,7 @@ public class KotakuReviewCrawler {
 					StringBuilder comment = new StringBuilder();
 					
 					for (WebElement paragraph : commentParagraphs) {
-						comment.append(paragraph.getText()).append("\n");
+						comment.append(paragraph.getText());
 					}
 					
 					comments.add(comment.toString());
