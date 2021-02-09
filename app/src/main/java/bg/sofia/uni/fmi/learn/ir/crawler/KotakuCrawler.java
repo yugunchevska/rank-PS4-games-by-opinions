@@ -50,18 +50,14 @@ public class KotakuCrawler {
 		// get the last review stored in db
 		MySqlConnection dbConn = new MySqlConnection("kotaku");
 		String latestUrlInDB = dbConn.getLatestUrl();
-		System.out.println("in db " + latestUrlInDB);
 				
 		// get list of all reviews	
 	    WebElement reviewList = driver.findElement(By.className("joJOaV"));
-	    System.out.println("here1");
 	    // Go through each review article 
 	    List<WebElement> articles = reviewList.findElements(By.tagName("article"));
-	    System.out.println("size of articles: " + articles.size());
 	    List<Review> reviews = new ArrayList<>();
 	    for(WebElement article : articles) {
 	    	try {
-	    		System.out.println("here1");
 	    		WebElement heading = article.findElement(By.tagName("h2"));	
 	    	
 	    		List<WebElement> attributes = article.findElements(By.tagName("a"));
@@ -83,10 +79,10 @@ public class KotakuCrawler {
     			}
 		        	
     			// this should be a log 
-	            System.out.println("Heading    : " + heading.getText());
-	            System.out.println("Date       : " + date.getAttribute("datetime"));
-	            System.out.println("Link       : " + headingRef.getAttribute("href"));
-	            System.out.println("------------------------------");
+//	            System.out.println("Heading    : " + heading.getText());
+//	            System.out.println("Date       : " + date.getAttribute("datetime"));
+//	            System.out.println("Link       : " + headingRef.getAttribute("href"));
+//	            System.out.println("------------------------------");
 	                
 	            Review review = new Review(heading.getText(), reviewDate, reviewLink);
 	            reviews.add(review);

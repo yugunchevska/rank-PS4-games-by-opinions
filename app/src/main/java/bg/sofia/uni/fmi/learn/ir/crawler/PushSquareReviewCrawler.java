@@ -32,10 +32,16 @@ public class PushSquareReviewCrawler {
 				endTitleIndex = reviewTitle.indexOf("-");
 			}
 			return reviewTitle.substring(firstIndexOfColon + 2, endTitleIndex);
-		} else {
+		} else if (reviewTitle.contains("Review")){
 			// it's of type '<title> Review'
 			int lastIndexOfReview = reviewTitle.lastIndexOf("Review");
 			return reviewTitle.substring(0, lastIndexOfReview);
+		} else if (reviewTitle.contains("-")) {
+			// it's of type '<title> - <some-text>'
+			int indexOfReview = reviewTitle.indexOf("-");
+			return reviewTitle.substring(0, indexOfReview);
+		} else {
+			return reviewTitle;
 		}
 	}
 	
@@ -43,7 +49,11 @@ public class PushSquareReviewCrawler {
 		// find the section with class "text"
 		WebElement reviewSections = driver.findElement(By.xpath("//*[@id=\"article\"]/div/section[1]"));
 
-		return reviewSections.getText();
+		return reviewSections.getText()
+							 .replaceAll("\u2019", "&#39;")
+							 .replaceAll("\u201D", "&#34;")
+							 .replaceAll("\u201C", "&#34;")
+							 .replaceAll("\u2013", "&#45;");
 	}
 	
 	public String getSummaryInfo() throws IOException {

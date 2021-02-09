@@ -17,7 +17,8 @@ public class SentimentAnalyser {
 	
 	public static double getSentimentResult(String text) throws InvalidObjectException {
 		Properties props = new Properties();
-		props.setProperty("annotators", "tokenize, ssplit, parse, sentiment");
+		// or "tokenize, ssplit, pos, parse, sentiment"
+		props.setProperty("annotators", "tokenize, ssplit, pos, parse, sentiment");
 		StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
 		
 		if (text != null && text.length() > 0) {
@@ -32,10 +33,10 @@ public class SentimentAnalyser {
 
 				textScore.addSentimentSentenceScore(RNNCoreAnnotations.getPredictedClass(tree));
 				//print the sentiment score using RNNCoreAnnotations
-				System.out.println("Sentiment Score: " + RNNCoreAnnotations.getPredictedClass(tree));
+				// System.out.println("Sentiment Score: " + RNNCoreAnnotations.getPredictedClass(tree));
 				
 				String sentimentType = sentence.get(SentimentCoreAnnotations.SentimentClass.class);
-				System.out.println("sentiment type: " + sentimentType);
+				// System.out.println("sentiment type: " + sentimentType);
 			}
 			
 			return textScore.getSentimentScore();
@@ -49,11 +50,14 @@ public class SentimentAnalyser {
 				"\r\n" + 
 				"Which in my defense happens ALL time lol.";
 		String text2 = "The main plot never seemed to matter much in the last two games.  I always forgot why people needed hitmaned because nothing ever felt connected.  It was just a generic list of bad guys.  I’m glad if it does feel different in this game.";
+		
+		String text3 = "Yep looks like Lillymo and CLS or last stand media as they are now know. keep capturing lighting in a bottle - bravo Colin . Looking forward to playing this on the vita";
+		
 		List<String> comments = new ArrayList<>();
 		comments.add(text1);
 		comments.add(text2);
 		String onePlace = comments.toString();
-		double score = SentimentAnalyser.getSentimentResult(onePlace);
+		double score = SentimentAnalyser.getSentimentResult(text3);
 		
 		System.out.println("the score for the whole comment is: " + score);
 	}

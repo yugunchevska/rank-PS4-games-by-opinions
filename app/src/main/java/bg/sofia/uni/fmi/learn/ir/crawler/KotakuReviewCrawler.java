@@ -45,7 +45,7 @@ public class KotakuReviewCrawler {
 					}
 				}
 			} catch (NullPointerException | StaleElementReferenceException e) {
-				System.out.println("The div in Kotaku review doesn't has class.");
+				// System.out.println("The div in Kotaku review doesn't has class.");
 				continue;
 			}
 		}
@@ -64,7 +64,8 @@ public class KotakuReviewCrawler {
 					}
 				}
 			} catch (NullPointerException e) {
-				System.out.println("The div in Kotaku review doesn't has class.");
+				// System.out.println("The div in Kotaku review doesn't has class.");
+				continue;
 			}
 		}
 		
@@ -73,7 +74,7 @@ public class KotakuReviewCrawler {
 			review.delete(i, i + reviewBox.length());
 		}
 		
-		// remove the releted reviews
+		// remove the related reviews
 		List<WebElement> asides = driver.findElements(By.tagName("aside"));
 		
 		for (WebElement aside : asides) {
@@ -89,7 +90,11 @@ public class KotakuReviewCrawler {
 			}
 		}
 		
-		return review.toString().replaceAll("\u2019", "&#39;");
+		return review.toString()
+					 .replaceAll("\u2019", "&#39;")
+					 .replaceAll("\u201D", "&#34;")
+					 .replaceAll("\u201C", "&#34;")
+					 .replaceAll("\u2013", "&#45;");
 	}
 	
 	public String getSummaryInfo() throws IOException {
@@ -105,7 +110,7 @@ public class KotakuReviewCrawler {
 	    wait.until(ExpectedConditions.elementToBeClickable(seeAllRepliesButton)).click();
 	    wait.until(ExpectedConditions.invisibilityOfElementLocated(seeAllRepliesButton));
 		
-		System.err.println("SUCCESS: clicked");
+		// System.err.println("SUCCESS: clicked");
 		
 		// change to iframe
 		List<String> comments = new ArrayList<String>();
@@ -116,7 +121,7 @@ public class KotakuReviewCrawler {
 			if (tag.getTagName().equals("iframe")) {
 				
 				driver.switchTo().frame(tag);
-				System.err.println("SUCCESS: in the comments iframe");
+				// System.err.println("SUCCESS: in the comments iframe");
 				
 				// load the rest of the comments
 				while (true) {

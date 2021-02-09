@@ -20,7 +20,6 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import bg.sofia.uni.fmi.learn.ir.crawler.KotakuCrawler;
 import bg.sofia.uni.fmi.learn.ir.crawler.PushSquareCrawler;
 import bg.sofia.uni.fmi.learn.ir.search.LuceneSearcher;
-import bg.sofia.uni.fmi.learn.nlp.sentiment.analysis.SentimentAnalyser;
 import bg.sofia.uni.fmi.learn.sql.MySqlConnection;
 
 public class Main {
@@ -38,7 +37,7 @@ public class Main {
 				return; // continue;
 			}
 			// should be a log message
-			System.out.println("date after parsing: " + fromDate);
+			// System.out.println("date after parsing: " + fromDate);
 			
 			// 1. store info from sites in DB
 			// 1.1 should use only one driver, we want it faster
@@ -68,32 +67,17 @@ public class Main {
 			LuceneSearcher searcher = new LuceneSearcher();
 			searcher.indexDocuments(gameSummary);
 			
-			// 2.0 take all comments from DB for game reviews since #timePeriod
-			Map<String, List<String>> gameComments = new HashMap<>();
-			gameComments.putAll(connPushSquare.getCommentsSince(fromDate));
-			gameComments.putAll(connKotaku.getCommentsSince(fromDate));
-			
-			// 2.1 run sentiment analyser on those comments for every game since #timeperiod
-			// takes a lot of time 
-			Map<String, Double> gamesScore = new HashMap<>();
-			for (Map.Entry<String, List<String>> entry : gameComments.entrySet()) {
-				//double score = SentimentAnalyser.getSentimentResult(entry.getValue().toString());
-				
-				//gamesScore.put(entry.getKey(), score);
-			}
-			
-			//System.out.println("score: " + gamesScore);
-			
-			gamesScore.put("The Medium", 1.711);
-			gamesScore.put("Hitman 3", 1.9044);
-			gamesScore.put("Dune", 1.7);
+			// 2 take all comments from DB for game reviews since #timePeriod
+			Map<String, Double> gameSentimentScore = new HashMap<>();
+			gameSentimentScore.putAll(connPushSquare.getSentimentScoreSince(fromDate));
+			gameSentimentScore.putAll(connKotaku.getSentimentScoreSince(fromDate));
 			
 			// 3. rank the games, top 10
 			Map<String, Double> gamesScoreSorted = new LinkedHashMap<>();
-			gamesScore.entrySet()
-					  .stream()
-					  .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-					  .forEachOrdered(x -> gamesScoreSorted.put(x.getKey(), x.getValue()));
+			gameSentimentScore.entrySet()
+							  .stream()
+							  .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+							  .forEachOrdered(x -> gamesScoreSorted.put(x.getKey(), x.getValue()));
 			
 			System.out.println("Top 10 games from " + fromDate);
 			int bestGamesIndex = 1;

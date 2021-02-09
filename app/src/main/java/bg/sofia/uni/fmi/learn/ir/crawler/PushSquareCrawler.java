@@ -65,10 +65,10 @@ public class PushSquareCrawler {
 	    				break;
 	    			}
 	    			
-	                System.out.println("Heading    : " + heading.getText());
-	                System.out.println("Date       : " + reviewDate);
-	                System.out.println("Link       : " + reviewLink);
-	                System.out.println("------------------------------");
+//	                System.out.println("Heading    : " + heading.getText());
+//	                System.out.println("Date       : " + reviewDate);
+//	                System.out.println("Link       : " + reviewLink);
+//	                System.out.println("------------------------------");
 	                
 	    			Review review = new Review(heading.getText(), reviewDate, reviewLink);
 	    			latestReviews.add(review);

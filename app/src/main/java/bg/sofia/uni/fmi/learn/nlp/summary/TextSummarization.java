@@ -14,15 +14,16 @@ import bg.sofia.uni.fmi.learn.util.HttpRequest;
 public class TextSummarization {
 	private static final String SUMMARIZATION_URL = "https://api.meaningcloud.com/summarization-1.0";
 	private static final String MEANING_CLOUD_KEY = "6c64768248d57c69b7036c1b7328361f";
+	private static final String NUMBER_OF_SENTENCES = "7";
     
     public static String summarize(String text) throws IOException {
         List<NameValuePair> urlParameters = new ArrayList<>();
         urlParameters.add(new BasicNameValuePair("key", MEANING_CLOUD_KEY));
         urlParameters.add(new BasicNameValuePair("txt", text));
-        urlParameters.add(new BasicNameValuePair("sentences", "10"));
+        urlParameters.add(new BasicNameValuePair("sentences", NUMBER_OF_SENTENCES));
         
     	String summaryResponseInJson = HttpRequest.sendPostRequest(SUMMARIZATION_URL, urlParameters);
-    	System.out.println("Json response from MeaningCloud: " + summaryResponseInJson);
+    	// System.out.println("Json response from MeaningCloud: " + summaryResponseInJson);
     	
     	return extractSummaryFromJson(summaryResponseInJson);
     }

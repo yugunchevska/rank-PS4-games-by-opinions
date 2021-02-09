@@ -1,5 +1,6 @@
 package bg.sofia.uni.fmi.learn.sql;
 
+import java.io.InvalidObjectException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -20,13 +21,13 @@ public class MySqlConnection {
 		this.site = site;
 	}
 	
-	public void insertGame(String title, String date, String reviewUrl, String summary, List<String> comments) {
+	public void insertGame(String title, String date, String reviewUrl, String summary, List<String> comments) throws InvalidObjectException {
         try (Connection con = DriverManager.getConnection(url, user, password)) {
         	if (!MySqlStatements.doesGameExists(con, site, title)) {
         		MySqlStatements.insertGameInfo(con, site, title, date, reviewUrl, summary);
-        		MySqlStatements.insertGameComments(con, site, title, comments);
+        		MySqlStatements.insertGameCommentsAndSentimentScores(con, site, title, comments);
         	} else {
-        		System.out.println("The game already exists in the DB");
+        		// System.out.println("The game already exists in the DB");
         	}
         } catch (SQLException ex) {
             System.err.println("ERROR with MySQL");
@@ -92,6 +93,18 @@ public class MySqlConnection {
         } 
 		
 		return gameSummary;
+	}
+	
+	public Map<String, Double> getSentimentScoreSince(String date) {
+		Map<String, Double> gameScore = new HashMap<>();
+		try (Connection con = DriverManager.getConnection(url, user, password)) {
+			gameScore = MySqlStatements.getSentimentScoreSince(con, site, date);
+        } catch (SQLException ex) {
+            System.err.println("ERROR with MySQL");
+            ex.printStackTrace();
+        } 
+		
+		return gameScore;
 	}
 
     public static void main(String[] args) {
