@@ -23,7 +23,7 @@ public class KotakuCrawler {
 	
 	private WebDriver driver;
 	
-	public KotakuCrawler(WebDriver driver) {
+	public KotakuCrawler(WebDriver driver) {		
 		this.driver = driver;
 	    driver.manage().window().maximize();
 	    driver.get(KOTAKU_URL);
@@ -45,62 +45,78 @@ public class KotakuCrawler {
 		driver.switchTo().defaultContent();
 	}
 	
-	// TODO should go to the next page automatically - another method maybe; stops when the date is met
 	private List<Review> getLinksOfLatestReviews(String fromDate) {	    
 		// get the last review stored in db
 		MySqlConnection dbConn = new MySqlConnection("kotaku");
 		String latestUrlInDB = dbConn.getLatestUrl();
-				
-		// get list of all reviews	
-	    WebElement reviewList = driver.findElement(By.className("sc-17uq8ex-0"));
-	    // Go through each review article 
-	    List<WebElement> articles = reviewList.findElements(By.tagName("article"));
-	    List<Review> reviews = new ArrayList<>();
-	    for(WebElement article : articles) {
-	    	try {
-	    		WebElement heading = article.findElement(By.tagName("h2"));	
-	    	
-	    		List<WebElement> attributes = article.findElements(By.tagName("a"));
-		        WebElement headingRef = attributes.get(3);
+			
+		List<Review> reviews = new ArrayList<>();
+		boolean allReviewsFromWantedDateAreCollected = false;
+	    while (!allReviewsFromWantedDateAreCollected) {
+			// get list of all reviews from this site
+		    WebElement reviewList = driver.findElement(By.className("sc-17uq8ex-0"));
+		    // Go through each review article 
+		    List<WebElement> articles = reviewList.findElements(By.tagName("article"));
+		    for(WebElement article : articles) {
+		    	try {
+		    		WebElement heading = article.findElement(By.tagName("h2"));	
+		    	
+		    		List<WebElement> attributes = article.findElements(By.tagName("a"));
+			        WebElement headingRef = attributes.get(3);
+			        	
+			        WebElement date = article.findElement(By.tagName("time"));
+			        String reviewDateAndHours = date.getAttribute("datetime");
+			        String reviewDate = reviewDateAndHours.split("T")[0];
+			        if (!isReviewDateAfterWantedDate(reviewDate, fromDate)) {
+		        		// the review is older
+			        	allReviewsFromWantedDateAreCollected = true;
+		        		break;
+		        	}
 		        	
-		        WebElement date = article.findElement(By.tagName("time"));
-		        String reviewDateAndHours = date.getAttribute("datetime");
-		        String reviewDate = reviewDateAndHours.split("T")[0];
-		        if (!isReviewDateAfterWantedDate(reviewDate, fromDate)) {
-	        		// the review is older
-	        		break;
-	        	}
-	        	
-	        	// if the review from pushSquare is already in DB 
-                // => no need to store the rest of them again
-	        	String reviewLink = headingRef.getAttribute("href");
-    			if (latestUrlInDB.equals(reviewLink)) {
-    				break;
-    			}
-		        	
-    			// this should be a log 
-//	            System.out.println("Heading    : " + heading.getText());
-//	            System.out.println("Date       : " + date.getAttribute("datetime"));
-//	            System.out.println("Link       : " + headingRef.getAttribute("href"));
-//	            System.out.println("------------------------------");
-	                
-	            Review review = new Review(heading.getText(), reviewDate, reviewLink);
-	            reviews.add(review);
-	    	} catch (NullPointerException e) {
-	    		System.err.println("Error while searching for reviews from Kotaku.");
-	    		e.printStackTrace();
-	    		continue;
-	    	}
+		        	// if the review from pushSquare is already in DB 
+	                // => no need to store the rest of them again
+		        	String reviewLink = headingRef.getAttribute("href");
+	    			if (latestUrlInDB.equals(reviewLink)) {
+	    				allReviewsFromWantedDateAreCollected = true;
+	    				break;
+	    			}
+			        	
+	    			// this should be a log 
+	//	            System.out.println("Heading    : " + heading.getText());
+	//	            System.out.println("Date       : " + date.getAttribute("datetime"));
+	//	            System.out.println("Link       : " + headingRef.getAttribute("href"));
+	//	            System.out.println("------------------------------");
+		                
+		            Review review = new Review(heading.getText(), reviewDate, reviewLink);
+		            reviews.add(review);
+		    	} catch (NullPointerException e) {
+		    		System.err.println("Error while searching for reviews from Kotaku.");
+		    		e.printStackTrace();
+		    		continue;
+		    	}
+		    }
+		    
+		    // check if the reviews are already collected
+		    // if not - should go to the next page
+		    if (!allReviewsFromWantedDateAreCollected) {
+		    	goToNextPage();
+		    }
 	    }
 	    
 	    return reviews;
 	}
-	
+
 	private boolean isReviewDateAfterWantedDate(String reviewDate, String fromDate) {
 		LocalDate reviewRealDate = LocalDate.parse(reviewDate);
 		LocalDate fromRealDate = LocalDate.parse(fromDate);
 	
 		return fromRealDate.compareTo(reviewRealDate) < 0;
+	}
+	
+	private void goToNextPage() {
+		WebElement hrefElement = driver.findElement(By.className("next-button"));
+		String nextPageUrl = hrefElement.getAttribute("href");
+		driver.get(nextPageUrl);
 	}
 	
 	public void storeReviewsInDB(String fromDate) throws InterruptedException, IOException {
