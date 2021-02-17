@@ -52,7 +52,7 @@ public class KotakuCrawler {
 		String latestUrlInDB = dbConn.getLatestUrl();
 				
 		// get list of all reviews	
-	    WebElement reviewList = driver.findElement(By.className("joJOaV"));
+	    WebElement reviewList = driver.findElement(By.className("sc-17uq8ex-0"));
 	    // Go through each review article 
 	    List<WebElement> articles = reviewList.findElements(By.tagName("article"));
 	    List<Review> reviews = new ArrayList<>();

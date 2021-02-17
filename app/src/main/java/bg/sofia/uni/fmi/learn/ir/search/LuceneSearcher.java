@@ -15,9 +15,10 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
@@ -51,7 +52,8 @@ public class LuceneSearcher {
 	}
 	
 	public List<Document> searchByTitle(String searchingFor) throws ParseException, IOException {
-		Query query = new QueryParser("title", new StandardAnalyzer()).parse(searchingFor);
+		Term term = new Term("title", searchingFor);
+		Query query = new PrefixQuery(term);
 
 		IndexReader indexReader = DirectoryReader.open(memoryIndex);
 		IndexSearcher searcher = new IndexSearcher(indexReader);
@@ -65,10 +67,10 @@ public class LuceneSearcher {
 	}
 	
 	public static void main(String[] args) throws IOException, ParseException {
-		String title1 = "The Middle";
+		String title1 = "Control";
 		String summary1 = "Quite creepy to be honest";
 		
-		String title2 = "The Middle: more creepy";
+		String title2 = "Concrete Genie";
 		String summary2 = "Wasn't worth waiting 5 years";
 		
 		Map<String, String> map = new HashMap<>();
@@ -84,7 +86,7 @@ public class LuceneSearcher {
 			String searchingFor = scanner.nextLine();
 			
 			List<Document> summary = searcher.searchByTitle(searchingFor);
-			System.out.println("Titles found: " + summary.get(0).get("summary"));
+			System.out.println("Docs found: " + summary);
 		} finally {
 			scanner.close();
 		}

@@ -17,7 +17,6 @@ public class SentimentAnalyser {
 	
 	public static double getSentimentResult(String text) throws InvalidObjectException {
 		Properties props = new Properties();
-		// or "tokenize, ssplit, pos, parse, sentiment"
 		props.setProperty("annotators", "tokenize, ssplit, pos, parse, sentiment");
 		StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
 		

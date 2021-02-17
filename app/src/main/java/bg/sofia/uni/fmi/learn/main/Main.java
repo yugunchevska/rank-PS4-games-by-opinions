@@ -91,19 +91,30 @@ public class Main {
 			}
 			
 			// 4. ask if it wants to see a summary for some game 
-			System.out.println("Show summary for: ");
-			String gameTitleToSearchFor = scanner.nextLine();
-			
-			// 4.1 search for that game
-			List<Document> foundTitles = searcher.searchByTitle(gameTitleToSearchFor);
-			for (int i = 0; i < foundTitles.size(); ++i) {
-				System.out.print(i + ": " + foundTitles.get(i).get("title"));
-				System.out.println();
+			while (true) {
+				System.out.println("Show summary for: ");
+				String gameTitleToSearchFor = scanner.nextLine();
+				
+				if (gameTitleToSearchFor.toLowerCase().equals("exit")) {
+					break;
+				}
+				
+				// 4.1 search for that game
+				List<Document> foundTitles = searcher.searchByTitle(gameTitleToSearchFor);
+				if (foundTitles.size() == 0) {
+					System.out.println("No found games. Try again.");
+					continue;
+				}
+				
+				for (int i = 0; i < foundTitles.size(); ++i) {
+					System.out.print(i + ": " + foundTitles.get(i).get("title"));
+					System.out.println();
+				}
+				System.out.println("Choose number of wanted game:");
+				int gameNumber = scanner.nextInt();
+				String wantedSummary = foundTitles.get(gameNumber).get("summary");
+				System.out.println(wantedSummary);
 			}
-			System.out.println("Choose number of wanted game.");
-			int gameNumber = scanner.nextInt();
-			String wantedSummary = foundTitles.get(gameNumber).get("summary");
-			System.out.println(wantedSummary);
 			
 		} finally {
 			scanner.close();
